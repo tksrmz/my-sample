@@ -16,5 +16,7 @@ $ docker run -d \
   monit-apache-demo
 
 # Apacheを終了させると、Monitが再起動する
+$ docker exec monit-test monit status   # 終了前の確認
 $ docker exec monit-test pkill apache2
+$ docker exec monit-test monit status  # 再起動したことの確認（Apache終了後90秒くらい待機してから実行）
 ```
