@@ -1,0 +1,30 @@
+# 監視間隔（30秒ごと）
+set daemon 30
+
+# ログ設定
+set log syslog
+
+# UIの設定
+set httpd port 2812 and
+    use address 0.0.0.0
+    allow 0.0.0.0/0.0.0.0
+    allow admin:monit
+
+# システム全体の監視
+check system localhost
+    if loadavg (1min) > 4 then alert
+    if loadavg (5min) > 2 then alert
+    if memory usage > 75% then alert
+    if cpu usage > 95% for 10 cycles then alert
+
+# Apache2の監視設定
+check process apache2 with pidfile /var/run/apache2/apache2.pid
+    start program = "/usr/sbin/apachectl start"
+    stop program  = "/usr/sbin/apachectl stop"
+    if does not exist then start
+    if failed host localhost port 80 
+        protocol http
+        request "/"
+        for 2 cycles
+    then restart
+    if 3 restarts within 5 cycles then timeout
